@@ -79,3 +79,5 @@ export const getMe = (req, res) => {
         res.status(401).send({ message: 'Invalid or expired token!' });
     }
 };
+
+export default authController;

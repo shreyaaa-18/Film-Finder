@@ -51,7 +51,9 @@ const Navbar = () => {
               </Menu>
             )}
             {!user && (
-              <Avatar size={"sm"} bg={"gray.800"} as="button" onClick={handleLogin} />
+              <Link to="/login">
+                <Avatar size={"sm"} bg={"gray.800"} as="button" />
+              </Link>
             )}
           </Flex>
         </Flex>
