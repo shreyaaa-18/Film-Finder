@@ -1,19 +1,8 @@
 import { Avatar, Box, Container, Flex, Menu, MenuButton, MenuItem, MenuList } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
-import { useAuth } from "../context/useAuth";
+
 
 const Navbar = () => {
-  const { user, login, logout } = useAuth();
-
-
-  const handleLogin = async () => {
-    try {
-      await login();
-      console.log('success');
-    } catch (error) {
-      console.log("errr", error);
-    }
-  }
 
   return (
     <Box py="4" mb="2">
@@ -37,24 +26,25 @@ const Navbar = () => {
             <Link to="/movies">Movies</Link>
             <Link to="/shows">TV Shows</Link>
             <Link to="/search">Search</Link>
-            {user && (
+            {/* // add if and if not user condition here */}
               <Menu>
                 <MenuButton>
-                  <Avatar bg={"red.500"} color={"white"} size={"sm"} name="Code"/>
+                  <Avatar bg={"red.500"} color={"white"} size={"sm"} name={null}/>
                 </MenuButton>
                 <MenuList>
                   <Link to="/">
                     <MenuItem>Watchlist</MenuItem>
                   </Link>
-                  <MenuItem onClick={logout}>Logout</MenuItem>
+                  {/* // add onlclick logout here */}
+                  <MenuItem>Logout</MenuItem>
                 </MenuList>
               </Menu>
-            )}
-            {!user && (
-              <Link to="/login">
+            
+            {/* // if not user */}
+             {/* <Link to="/login">
                 <Avatar size={"sm"} bg={"gray.800"} as="button" />
-              </Link>
-            )}
+              </Link> */}
+            
           </Flex>
         </Flex>
       </Container>

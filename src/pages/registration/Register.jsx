@@ -1,188 +1,87 @@
-import React, { useState } from 'react';
+import { Box, Button, FormControl, FormLabel, Input, Heading, Text, VStack } from '@chakra-ui/react'
+import { useState } from 'react';
+import { Link, useNavigate } from "react-router-dom";
 import axios from 'axios';
-import {
-  Box,
-  Button,
-  Input,
-  FormControl,
-  FormLabel,
-  Heading,
-  Text,
-  VStack,
-  useToast,
-  Divider,
-  FormErrorMessage,
-} from '@chakra-ui/react';
-import { Link, useNavigate } from 'react-router-dom';
 
 const Register = () => {
-  const [formData, setFormData] = useState({ username: '', email: '', password: '' });
-  const [errors, setErrors] = useState({ username: '', email: '', password: '' });
-  const navigate = useNavigate();
-  const toast = useToast();
 
-  const validateUsername = (username) => {
-    return username.length >= 3;
-  };
+  const [values, setValues] = useState({
+    username: '',
+    email: '',
+    password: ''
+  })
 
-  const validateEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Basic email regex pattern
-    return emailRegex.test(email);
-  };
+  const navigate = useNavigate()
 
-  const validatePassword = (password) => {
-    return password.length >= 6;
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-
-    // Real-time validation
-    if (name === 'username' && !validateUsername(value)) {
-      setErrors((prev) => ({ ...prev, username: 'Username must be at least 3 characters long' }));
-    } else if (name === 'username') {
-      setErrors((prev) => ({ ...prev, username: '' }));
-    }
-
-    if (name === 'email' && !validateEmail(value)) {
-      setErrors((prev) => ({ ...prev, email: 'Invalid email address' }));
-    } else if (name === 'email') {
-      setErrors((prev) => ({ ...prev, email: '' }));
-    }
-
-    if (name === 'password' && !validatePassword(value)) {
-      setErrors((prev) => ({
-        ...prev,
-        password: 'Password must be at least 6 characters long',
-      }));
-    } else if (name === 'password') {
-      setErrors((prev) => ({ ...prev, password: '' }));
-    }
-  };
+  const handleChanges = (e) => {
+    setValues({...values, [e.target.name]:e.target.value})
+  }
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!validateUsername(formData.username) || !validateEmail(formData.email) || !validatePassword(formData.password)) {
-      toast({
-        title: 'Invalid input',
-        description: 'Please correct the errors in the form',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      });
-      return;
-    }
-
+    e.preventDefault()
     try {
-      const response = await axios.post('http://localhost:3000/register', formData);
-      toast({
-        title: 'Registration Successful',
-        description: response.data.message,
-        status: 'success',
-        duration: 3000,
-        isClosable: true,
-      });
-      navigate('/login'); // Redirect to login page after successful registration
-    } catch (error) {
-      console.error(error);
-      toast({
-        title: 'Registration Failed',
-        description: 'An error occurred during registration',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      });
-    }
-  };
+      const response = await axios.post('http://localhost:3000/auth/register', values)
+      if(response.status === 201) {
+        navigate('/login')
+      }
+    } catch(err) {
+        console.log(err)
+      }
+  }
 
   return (
     <Box
-      maxW="400px"
-      mx="auto"
-      mt="100px"
-      p="8"
-      boxShadow="lg"
-      borderRadius="lg"
-      bg="gray.800"
-      color="white"
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+      height="100vh"
+      bg="black"  // Set page background to black
     >
-      <Heading mb="6" textAlign="center" color="teal.300">
-        Register
-      </Heading>
-      <form onSubmit={handleSubmit}>
-        <VStack spacing="4">
-          {/* Username Input */}
-          <FormControl isRequired isInvalid={!!errors.username}>
-            <FormLabel>Username</FormLabel>
-            <Input
-              type="text"
-              name="username"
-              placeholder="Enter your username"
-              onChange={handleChange}
-              value={formData.username}
-              bg="gray.700"
-              color="white"
-              _placeholder={{ color: 'gray.400' }}
-            />
-            {errors.username && <FormErrorMessage>{errors.username}</FormErrorMessage>}
-          </FormControl>
+      <Box
+        boxShadow="lg"
+        p={8}
+        borderWidth={1}
+        borderRadius="md"
+        width="96"
+        bg="gray.800"  // Set form background to a dark gray
+        color="white"  // Ensure text is white on dark background
+      >
+        <Heading as="h2" size="lg" textAlign="center" mb={6} color="teal.400">
+          Register
+        </Heading>
+        <form onSubmit={handleSubmit}> 
+          <VStack spacing={4}>
+            <FormControl id="username" isRequired>
+              <FormLabel color="gray.300">Username</FormLabel>
+              <Input type="text" placeholder="Enter Username" bg="gray.700" color="white" name='username' onChange={handleChanges}/>
+            </FormControl>
 
-          {/* Email Input */}
-          <FormControl isRequired isInvalid={!!errors.email}>
-            <FormLabel>Email</FormLabel>
-            <Input
-              type="email"
-              name="email"
-              placeholder="Enter your email"
-              onChange={handleChange}
-              value={formData.email}
-              bg="gray.700"
-              color="white"
-              _placeholder={{ color: 'gray.400' }}
-            />
-            {errors.email && <FormErrorMessage>{errors.email}</FormErrorMessage>}
-          </FormControl>
+            <FormControl id="email" isRequired>
+              <FormLabel color="gray.300">Email</FormLabel>
+              <Input type="email" placeholder="Enter Email" bg="gray.700" color="white" name='email' onChange={handleChanges}/>
+            </FormControl>
 
-          {/* Password Input */}
-          <FormControl isRequired isInvalid={!!errors.password}>
-            <FormLabel>Password</FormLabel>
-            <Input
-              type="password"
-              name="password"
-              placeholder="Enter your password"
-              onChange={handleChange}
-              value={formData.password}
-              bg="gray.700"
-              color="white"
-              _placeholder={{ color: 'gray.400' }}
-            />
-            {errors.password && <FormErrorMessage>{errors.password}</FormErrorMessage>}
-          </FormControl>
+            <FormControl id="password" isRequired>
+              <FormLabel color="gray.300">Password</FormLabel>
+              <Input type="password" placeholder="Enter Password" bg="gray.700" color="white" name='password' onChange={handleChanges}/>
+            </FormControl>
 
-          <Button
-            type="submit"
-            colorScheme="teal"
-            width="full"
-            isDisabled={!!errors.username || !!errors.email || !!errors.password}
-          >
-            Register
-          </Button>
-
-          <Divider borderColor="gray.600" />
-
-          <Text>
-            Already have an account?{' '}
-            <Link to="/login">
-              <Button variant="link" colorScheme="teal">
-                Login
-              </Button>
-            </Link>
-          </Text>
-        </VStack>
-      </form>
+            <Button colorScheme="teal" width="full" mt={4} type="submit">
+              Submit
+            </Button>
+          </VStack>
+        </form>
+        <Text mt={4} textAlign="center" color="gray.400">
+          Already have an account?{' '}
+          <Link to="/login">
+            <Button variant="link" colorScheme="teal">
+              Login
+            </Button>
+          </Link>
+        </Text>
+      </Box>
     </Box>
-  );
-};
+  )
+}
 
-export default Register;
+export default Register

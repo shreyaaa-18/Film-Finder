@@ -1,164 +1,83 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Box, Button, FormControl, FormLabel, Input, Heading, Text, VStack } from '@chakra-ui/react'
+import { useState } from 'react';
+import { Link, useNavigate } from "react-router-dom";
 import axios from 'axios';
-import {
-  Box,
-  Button,
-  Input,
-  FormControl,
-  FormLabel,
-  Heading,
-  Text,
-  VStack,
-  useToast,
-  Divider,
-  FormErrorMessage,
-} from '@chakra-ui/react';
 
 const Login = () => {
-  const [formData, setFormData] = useState({ email: '', password: '' });
-  const [errors, setErrors] = useState({ email: '', password: '' });
-  const navigate = useNavigate();
-  const toast = useToast();
 
-  const validateEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Basic email regex pattern
-    return emailRegex.test(email);
-  };
+  const [values, setValues] = useState({
+    email: '',
+    password: ''
+  })
 
-  const validatePassword = (password) => {
-    return password.length >= 6;
-  };
+  const navigate = useNavigate()
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-
-    // Perform real-time validation
-    if (name === 'email' && !validateEmail(value)) {
-      setErrors((prev) => ({ ...prev, email: 'Invalid email address' }));
-    } else if (name === 'email') {
-      setErrors((prev) => ({ ...prev, email: '' }));
-    }
-
-    if (name === 'password' && !validatePassword(value)) {
-      setErrors((prev) => ({
-        ...prev,
-        password: 'Password must be at least 6 characters long',
-      }));
-    } else if (name === 'password') {
-      setErrors((prev) => ({ ...prev, password: '' }));
-    }
-  };
+  const handleChanges = (e) => {
+    setValues({...values, [e.target.name]:e.target.value})
+  }
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!validateEmail(formData.email) || !validatePassword(formData.password)) {
-      toast({
-        title: 'Invalid input',
-        description: 'Please provide a valid email and password',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      });
-      return;
-    }
-
+    e.preventDefault()
     try {
-      const response = await axios.post('http://localhost:3000/login', formData);
-      toast({
-        title: 'Login Successful',
-        description: response.data.message,
-        status: 'success',
-        duration: 3000,
-        isClosable: true,
-      });
-      navigate('/'); // Redirect to homepage after successful login
-    } catch (error) {
-      console.error(error);
-      toast({
-        title: 'Login Failed',
-        description: 'Invalid email or password',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      });
-    }
-  };
+      const response = await axios.post('http://localhost:3000/auth/login', values)
+      if(response.status === 201) {
+        localStorage.setItem('token', response.data.token)
+        navigate('/')
+      }
+    } catch(err) {
+        console.log(err)
+      }
+  }
 
   return (
     <Box
-      maxW="400px"
-      mx="auto"
-      mt="100px"
-      p="8"
-      boxShadow="lg"
-      borderRadius="lg"
-      bg="gray.800"
-      color="white"
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+      height="100vh"
+      bg="black"  // Set page background to black
     >
-      <Heading mb="6" textAlign="center" color="teal.300">
-        Welcome Back!
-      </Heading>
-      <form onSubmit={handleSubmit}>
-        <VStack spacing="4">
-          {/* Email Input */}
-          <FormControl isRequired isInvalid={!!errors.email}>
-            <FormLabel>Email</FormLabel>
-            <Input
-              type="email"
-              name="email"
-              placeholder="Enter your email"
-              onChange={handleChange}
-              value={formData.email}
-              bg="gray.700"
-              color="white"
-              _placeholder={{ color: 'gray.400' }}
-            />
-            {errors.email && <FormErrorMessage>{errors.email}</FormErrorMessage>}
-          </FormControl>
+      <Box
+        boxShadow="lg"
+        p={8}
+        borderWidth={1}
+        borderRadius="md"
+        width="96"
+        bg="gray.800"  // Set form background to a dark gray
+        color="white"  // Ensure text is white on dark background
+      >
+        <Heading as="h2" size="lg" textAlign="center" mb={6} color="teal.400">
+          Login
+        </Heading>
+        <form onSubmit={handleSubmit}> 
+          <VStack spacing={4}>
 
-          {/* Password Input */}
-          <FormControl isRequired isInvalid={!!errors.password}>
-            <FormLabel>Password</FormLabel>
-            <Input
-              type="password"
-              name="password"
-              placeholder="Enter your password"
-              onChange={handleChange}
-              value={formData.password}
-              bg="gray.700"
-              color="white"
-              _placeholder={{ color: 'gray.400' }}
-            />
-            {errors.password && (
-              <FormErrorMessage>{errors.password}</FormErrorMessage>
-            )}
-          </FormControl>
+            <FormControl id="email" isRequired>
+              <FormLabel color="gray.300">Email</FormLabel>
+              <Input type="email" placeholder="Enter Email" bg="gray.700" color="white" name='email' onChange={handleChanges}/>
+            </FormControl>
 
-          <Button
-            type="submit"
-            colorScheme="teal"
-            width="full"
-            isDisabled={!!errors.email || !!errors.password}
-          >
-            Login
-          </Button>
+            <FormControl id="password" isRequired>
+              <FormLabel color="gray.300">Password</FormLabel>
+              <Input type="password" placeholder="Enter Password" bg="gray.700" color="white" name='password' onChange={handleChanges}/>
+            </FormControl>
 
-          <Divider borderColor="gray.600" />
-
-          <Text>
-            New here?{' '}
-            <Link to="/register">
-              <Button variant="link" colorScheme="teal">
-                Register
-              </Button>
-            </Link>
-          </Text>
-        </VStack>
-      </form>
+            <Button colorScheme="teal" width="full" mt={4} type="submit">
+              Submit
+            </Button>
+          </VStack>
+        </form>
+        <Text mt={4} textAlign="center" color="gray.400">
+          Don't have an account?{' '}
+          <Link to="/register">
+            <Button variant="link" colorScheme="teal">
+              Sign Up
+            </Button>
+          </Link>
+        </Text>
+      </Box>
     </Box>
-  );
-};
+  )
+}
 
-export default Login;
+export default Login

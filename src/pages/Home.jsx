@@ -2,6 +2,8 @@ import { useEffect, useState } from "react"
 import { Box, Container, Flex, Grid, Heading, Skeleton } from "@chakra-ui/react"
 import { fetchTrending } from "../services/api"
 import CardComponent from "../components/CardComponent";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const Home = () => {
   const [data, setData] = useState([]);
@@ -23,6 +25,29 @@ const Home = () => {
   }, [timeWindow]);
 
   console.log(data, 'data')
+
+  // Protected Routes 
+  const navigate = useNavigate()
+  const fetchUser = async () => {
+    try {
+      const token = localStorage.getItem('token')
+      const response = await axios.get('http://localhost:3000/auth/home', {
+        headers: {
+          "Authorization" : `Bearer ${token}`
+        }
+      })
+      if(response.status !== 201) {
+        navigate('/login')
+      }
+    } catch(err) {
+      navigate('/login')
+      console.log(err)
+    }
+  }
+
+  useEffect(() => {
+    fetchUser()
+  }, [])
 
   return (
     <Container maxW={'container.xl'}>

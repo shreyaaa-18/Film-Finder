@@ -10,7 +10,6 @@ import Movies from './pages/movies/Movies.jsx'
 import Shows from './pages/shows/Shows.jsx'
 import Search from './pages/search/Search.jsx'
 import DetailsPage from './pages/DetailsPage.jsx'
-import { AuthProvider } from './context/authProvider.jsx'
 import Login from './pages/registration/login.jsx'
 import Register from './pages/registration/Register.jsx'
 
@@ -55,9 +54,8 @@ createRoot(document.getElementById('root')).render(
   <StrictMode>
     <ColorModeScript initialColorMode={theme.config.initialColorMode} />
     <ChakraProvider theme={theme}>
-      <AuthProvider>
       <RouterProvider router={router}/>
-      </AuthProvider>
+
     </ChakraProvider>
   </StrictMode>,
 )
