@@ -1,8 +1,50 @@
 import { Avatar, Box, Container, Flex, Menu, MenuButton, MenuItem, MenuList } from "@chakra-ui/react";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 
 const Navbar = () => {
+
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkAuthStatus = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          setIsAuthenticated(false);
+          return;
+        }
+
+        const response = await axios.get(`${import.meta.env.VITE_APP_URL}/auth/verify`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.status === 200 && response.data.isAuthenticated) {
+          setIsAuthenticated(true);
+          console.log("User is authenticated: ", response.data.isAuthenticated);
+        } else {
+          setIsAuthenticated(false);
+        }
+      } catch (err) {
+        console.error(err);
+        setIsAuthenticated(false);
+      }
+    };
+
+    checkAuthStatus();
+  }, []);
+
+  const handleLogout = () => {
+    // Clearing the token and redirect to login
+    localStorage.removeItem("token");
+    setIsAuthenticated(false);
+    navigate("/login");
+  };
 
   return (
     <Box py="4" mb="2">
@@ -26,24 +68,26 @@ const Navbar = () => {
             <Link to="/movies">Movies</Link>
             <Link to="/shows">TV Shows</Link>
             <Link to="/search">Search</Link>
-            {/* // add if and if not user condition here */}
+
+            {isAuthenticated ? (
+              // If the user is logged in, show avatar with menu
               <Menu>
                 <MenuButton>
-                  <Avatar bg={"red.500"} color={"white"} size={"sm"} name={null}/>
+                  <Avatar bg={"red.500"} color={"white"} size={"sm"} />
                 </MenuButton>
                 <MenuList>
                   <Link to="/">
                     <MenuItem>Watchlist</MenuItem>
                   </Link>
-                  {/* // add onlclick logout here */}
-                  <MenuItem>Logout</MenuItem>
+                  <MenuItem onClick={handleLogout}>Logout</MenuItem>
                 </MenuList>
               </Menu>
-            
-            {/* // if not user */}
-             {/* <Link to="/login">
+            ) : (
+              // If the user is not logged in, redirect to login page
+              <Link to="/login">
                 <Avatar size={"sm"} bg={"gray.800"} as="button" />
-              </Link> */}
+              </Link>
+            )}
             
           </Flex>
         </Flex>

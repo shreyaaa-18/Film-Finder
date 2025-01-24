@@ -20,14 +20,14 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      const response = await axios.post('http://localhost:3000/auth/register', values)
+      const response = await axios.post(`${import.meta.env.VITE_APP_URL}/auth/register`, values)
       if(response.status === 201) {
         navigate('/login')
       }
     } catch(err) {
         console.log(err)
       }
-  }
+  };
 
   return (
     <Box

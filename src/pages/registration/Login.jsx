@@ -19,7 +19,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      const response = await axios.post('http://localhost:3000/auth/login', values)
+      const response = await axios.post(`${import.meta.env.VITE_APP_URL}/auth/login`, values)
       if(response.status === 201) {
         localStorage.setItem('token', response.data.token)
         navigate('/')
