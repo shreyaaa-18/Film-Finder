@@ -10,7 +10,7 @@ import Movies from './pages/movies/Movies.jsx'
 import Shows from './pages/shows/Shows.jsx'
 import Search from './pages/search/Search.jsx'
 import DetailsPage from './pages/DetailsPage.jsx'
-import Login from './pages/registration/login.jsx'
+import Login from './pages/registration/Login.jsx'
 import Register from './pages/registration/Register.jsx'
 import Watchlist from './pages/watchlist/Watchlist.jsx'
 
