@@ -85,6 +85,45 @@ router.get('/verify', verifyToken, async (req, res) => {
     }
 })
 
+// Add movie to watchlist
+router.post('/watchlist', verifyToken, async (req, res) => {
+    const { movie_id } = req.body;
+    try {
+        const db = await connectToDatabase();
+        await db.query('INSERT INTO watchlist (user_id, movie_id) VALUES (?, ?)', [req.userId, movie_id]);
+        res.status(201).json({message: "Movie added to watchlist"});
+    } catch (err) {
+        if (err.code === 'ER_DUP_ENTRY') {
+            res.status(409).json({message: "Movie already in watchlist"});
+        } else {
+            res.status(500).json({message: err.message});
+        }
+    }
+});
+
+// Fetch User's Watchlist 
+router.get('/watchlist', verifyToken, async (req, res) => {
+    try {
+        const db = await connectToDatabase();
+        const [rows] = await db.query('SELECT movie_id FROM watchlist WHERE user_id = ?', [req.userId]);
+        res.status(200).json(rows.map(row => row.movie_id));
+    } catch (err) {
+        res.status(500).json({message: err.message});
+    }
+});
+
+// Remove movie from watchlist
+router.delete('/watchlist/:movie_id', verifyToken, async (req, res) => {
+    const { movie_id } = req.params;
+    try {
+        const db = await connectToDatabase();
+        await db.query('DELETE FROM watchlist WHERE user_id = ? AND movie_id = ?', [req.userId, movie_id]);
+        res.status(200).json({ message: "Movie removed from watchlist" })
+    } catch (error) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
 {/*
 // Home Route
 router.get('/home', verifyToken, async (req, res) => {

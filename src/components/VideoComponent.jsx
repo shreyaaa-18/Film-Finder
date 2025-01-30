@@ -17,7 +17,7 @@ const VideoComponent = ({id, small = true}) => {
   )
 }
 
-VideoComponent.PropTypes = {
+VideoComponent.propTypes = {
     id: PropTypes.string.isRequired,
     small: PropTypes.bool,  
 }

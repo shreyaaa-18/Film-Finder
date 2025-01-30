@@ -5,6 +5,7 @@ import { fetchCredits, fetchDetails, fetchVideos, imagePath, imagePathOriginal }
 import { CalendarIcon, CheckCircleIcon, SmallAddIcon, TimeIcon } from "@chakra-ui/icons";
 import { minutesTohour, ratingToPercentage, resolveRatingColor } from "../utils/helpers";
 import VideoComponent from "../components/VideoComponent";
+import axios from "axios";
 
 const DetailsPage = () => {
     const router = useParams();
@@ -15,20 +16,21 @@ const DetailsPage = () => {
     const [video, setVideo] = useState(null);
     const [videos, setVideos] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [isInWatchlist, setIsInWatchlist] = useState(false); // To track if movie is in the watchlist
 
-//    useEffect(() => {
-//      fetchDetails(type, id)
-//        .then((res) => {
-//          console.log(res, 'res')
-//          setDetails(res)
-//        })
-//        .catch((err) => {
-//          console.log(err, 'err')
-//        })
-//        .finally(() => {
-//          setLoading(false); 
-//        });
-//    }, [type, id])
+{/*    useEffect(() => {
+      fetchDetails(type, id)
+        .then((res) => {
+          console.log(res, 'res')
+        setDetails(res)
+        })
+        .catch((err) => {
+          console.log(err, 'err')
+        })
+        .finally(() => {
+          setLoading(false); 
+        });
+    }, [type, id]) */}
 
 useEffect(() => {
   const fetchData = async () => {
@@ -51,6 +53,15 @@ useEffect(() => {
       const videos = videosData?.results?.filter((video) => video?.type !== "Trailer")?.slice(0,10);
       setVideos(videos);
 
+      // Check if the movie is already in the watchlist
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${import.meta.env.VITE_APP_URL}/auth/watchlist`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      {/* const watchlist = response.data; // Array of movie IDs */}
+      // Direct comparison here
+      setIsInWatchlist(watchlist.includes(parseInt(id))); // Check if current movie ID is in the watchlist
+
     } catch (error) {
       console.log(error, 'error')
     } finally {
@@ -61,7 +72,39 @@ useEffect(() => {
   fetchData()
 }, [type, id]);
 
-console.log(video, videos, 'videos')
+// console.log(video, videos, 'videos')
+
+const addToWatchlist = async (movieId) => {
+  try {
+    const token = localStorage.getItem("token");
+    await axios.post(
+      `${import.meta.env.VITE_APP_URL}/auth/watchlist`,
+      { movie_id: movieId },
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    setIsInWatchlist(true); // Update the state to reflect the change
+    alert("Added to watchlist");
+  } catch (err) {
+    console.error(err);
+    alert(err.response?.data?.message || "Error adding movie to watchlist");
+  }
+};
+
+const removeFromWatchlist = async (movieId) => {
+  try {
+    const token = localStorage.getItem("token");
+    await axios.delete(`${import.meta.env.VITE_APP_URL}/auth/watchlist/${movieId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    setIsInWatchlist(false); 
+    alert("Removed from watchlist");
+  } catch (err) {
+    console.error(err);
+    alert(err.response?.data?.message || "Error removing movie from watchlist")
+  }
+};
 
     if (loading) {
       return (
@@ -136,22 +179,39 @@ console.log(video, videos, 'videos')
                 <Text display={{base: "none", md: "initial"}}>
                   User Score
                 </Text>
-                <Button 
+
+                {/* <Button 
                   display={"none"}
                   leftIcon={<CheckCircleIcon />} 
                   colorScheme="green" 
                   variant={"outline"} 
                   onClick={() => console.log("click")}
-                >
+                > 
                   In watchlist
-                </Button>
+                </Button> 
                 <Button 
                   leftIcon={<SmallAddIcon />} 
                   variant={"outline"} 
                   onClick={() => console.log("click")}
                 >
                   Add to watchlist
+                </Button> */}
+
+              {isInWatchlist ? (
+                <Button
+                  leftIcon={<CheckCircleIcon />}
+                  colorScheme="green"
+                  variant={"outline"}
+                  onClick={() => removeFromWatchlist(id)}
+                >
+                  In Watchlist
                 </Button>
+              ) : (
+                <Button leftIcon={<SmallAddIcon />} variant={"outline"} onClick={() => addToWatchlist(id)}>
+                  Add to Watchlist
+                </Button>
+              )}
+
               </Flex>
               <Text 
                 color={"gray.400"} 

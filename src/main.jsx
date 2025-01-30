@@ -12,6 +12,7 @@ import Search from './pages/search/Search.jsx'
 import DetailsPage from './pages/DetailsPage.jsx'
 import Login from './pages/registration/login.jsx'
 import Register from './pages/registration/Register.jsx'
+import Watchlist from './pages/watchlist/Watchlist.jsx'
 
 const router = createBrowserRouter([
   {
@@ -45,6 +46,10 @@ const router = createBrowserRouter([
       {
         path: "/register",
         element: <Register />
+      },
+      {
+        path: "/watchlist",
+        element: <Watchlist />
       }
     ]
   }

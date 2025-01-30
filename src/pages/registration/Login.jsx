@@ -1,4 +1,4 @@
-import { Box, Button, FormControl, FormLabel, Input, Heading, Text, VStack } from '@chakra-ui/react'
+import { Box, Button, FormControl, FormLabel, Input, Heading, Text, VStack, FormErrorMessage } from '@chakra-ui/react'
 import { useState } from 'react';
 import { Link, useNavigate } from "react-router-dom";
 import axios from 'axios';
@@ -10,14 +10,54 @@ const Login = () => {
     password: ''
   })
 
+  const [errors, setErrors] = useState({
+    email: '',
+    password: ''
+  })
+
   const navigate = useNavigate()
 
   const handleChanges = (e) => {
     setValues({...values, [e.target.name]:e.target.value})
   }
 
+  const validate = () => {
+    let isValid = true;
+    let newErrors = {
+      email: '',
+      password: ''
+    };
+
+    // Email verification
+    if (!values.email) {
+      newErrors.email = 'Email is required';
+      isValid = false;
+    } else if (!values.email.includes('@')) {
+      newErrors.email = 'Please enter a valid email address';
+      isValid = false;
+    }
+
+    // Password verification
+    if (!values.password) {
+      newErrors.password = 'Password is required';
+      isValid = false;
+    } else if (values.password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters long';
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  }
+
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
+
+    // Run validation
+    if (!validate()) {
+      return;
+    }
+
     try {
       const response = await axios.post(`${import.meta.env.VITE_APP_URL}/auth/login`, values)
       if(response.status === 201) {
@@ -52,14 +92,16 @@ const Login = () => {
         <form onSubmit={handleSubmit}> 
           <VStack spacing={4}>
 
-            <FormControl id="email" isRequired>
+            <FormControl id="email" isRequired isInvalid={!!errors.email}>
               <FormLabel color="gray.300">Email</FormLabel>
               <Input type="email" placeholder="Enter Email" bg="gray.700" color="white" name='email' onChange={handleChanges}/>
+              <FormErrorMessage>{errors.email}</FormErrorMessage>
             </FormControl>
 
-            <FormControl id="password" isRequired>
+            <FormControl id="password" isRequired isInvalid={!!errors.password}>
               <FormLabel color="gray.300">Password</FormLabel>
               <Input type="password" placeholder="Enter Password" bg="gray.700" color="white" name='password' onChange={handleChanges}/>
+              <FormErrorMessage>{errors.password}</FormErrorMessage>
             </FormControl>
 
             <Button colorScheme="teal" width="full" mt={4} type="submit">

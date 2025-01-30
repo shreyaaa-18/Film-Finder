@@ -76,7 +76,7 @@ const Navbar = () => {
                   <Avatar bg={"red.500"} color={"white"} size={"sm"} />
                 </MenuButton>
                 <MenuList>
-                  <Link to="/">
+                  <Link to="/watchlist">
                     <MenuItem>Watchlist</MenuItem>
                   </Link>
                   <MenuItem onClick={handleLogout}>Logout</MenuItem>
