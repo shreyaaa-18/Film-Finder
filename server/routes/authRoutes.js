@@ -124,6 +124,51 @@ router.delete('/watchlist/:movie_id', verifyToken, async (req, res) => {
     }
 });
 
+// Submit/ Update Rating
+router.post('/ratings', verifyToken, async (req, res) => {
+    const { movie_id, rating } = req.body;
+    try {
+        const db = await connectToDatabase();
+        // Check if rating exists
+        const [existing] = await db.query('SELECT * FROM ratings WHERE user_id =? AND movie_id = ?', [req.userId, movie_id]);
+        if (existing.length > 0) {
+            // Update existing rating
+            await db.query('UPDATE ratings SET rating = ? WHERE user_id = ? AND movie_id = ?', [rating, req.userId, movie_id]);
+        } else {
+            // Insert new rating 
+            await db.query('INSERT INTO ratings (user_id, movie_id, rating) VALUES (?, ?, ?)', [req.userId, movie_id, rating]);
+        }
+        res.status(201).json({ message: "Rating submitted successfully" });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// Get user's rating for a movie 
+router.get('/ratings/:movie_id', verifyToken, async (req, res) => {
+    const { movie_id } = req.params;
+    try {
+        const db = await connectToDatabase();
+        const [rows] = await db.query('SELECT rating FROM ratings WHERE user_id = ? AND movie_id = ?', [req.userId, movie_id]);
+        res.status(200).json(rows[0]?.rating || 0);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Server error" });
+    }
+});
+
+// Delete Rating
+router.delete('/ratings/:movie_id', verifyToken, async (req, res) => {
+    const { movie_id } = req.params;
+    try {
+        const db = await connectToDatabase();
+        await db.query('DELETE FROM ratings WHERE user_id = ? AND movie_id = ?', [req.userId, movie_id]);
+        res.status(200).json({ message: "Rating removed successfully" });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
 {/*
 // Home Route
 router.get('/home', verifyToken, async (req, res) => {
