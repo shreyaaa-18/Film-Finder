@@ -8,15 +8,15 @@ const Watchlist = () => {
     const [isLoading, setIsLoading] = useState(true);
 
     const removeFromWatchlist = async (movieId) => {
-      try {
+    try {
         const token = localStorage.getItem("token");
         await axios.delete(`${import.meta.env.VITE_APP_URL}/auth/watchlist/${movieId}`, {
-          headers: { Authorization: `Bearer ${token}` }
+            headers: { Authorization: `Bearer ${token}` }
         });
         setMovies(prev => prev.filter(movie => movie.id !== movieId));
-      } catch (err) {
+    } catch (err) {
         console.error(err);
-      }
+        }
     }; 
 
     useEffect(() => {

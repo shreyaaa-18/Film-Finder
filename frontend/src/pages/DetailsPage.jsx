@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom"
-import { Badge, Box, Button, CircularProgress, CircularProgressLabel, Container, Flex, Heading, Image, Spinner, Text } from "@chakra-ui/react";
+import { Badge, Box, Button, CircularProgress, CircularProgressLabel, Container, Flex, Heading, IconButton, Image, Spinner, Text, Tooltip } from "@chakra-ui/react";
 import { fetchCredits, fetchDetails, fetchVideos, imagePath, imagePathOriginal } from "../services/api";
-import { CalendarIcon, CheckCircleIcon, SmallAddIcon, TimeIcon } from "@chakra-ui/icons";
+import { CalendarIcon, CheckCircleIcon, SmallAddIcon, StarIcon, TimeIcon } from "@chakra-ui/icons";
 import { minutesTohour, ratingToPercentage, resolveRatingColor } from "../utils/helpers";
 import VideoComponent from "../components/VideoComponent";
 import axios from "axios";
@@ -17,20 +17,8 @@ const DetailsPage = () => {
     const [videos, setVideos] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isInWatchlist, setIsInWatchlist] = useState(false); // To track if movie is in the watchlist
-
-{/*    useEffect(() => {
-      fetchDetails(type, id)
-        .then((res) => {
-          console.log(res, 'res')
-        setDetails(res)
-        })
-        .catch((err) => {
-          console.log(err, 'err')
-        })
-        .finally(() => {
-          setLoading(false); 
-        });
-    }, [type, id]) */}
+    const [userRating, setUserRating] = useState(0);
+    const [hoverRating, setHoverRating] = useState(0);
 
 useEffect(() => {
   const fetchData = async () => {
@@ -58,9 +46,10 @@ useEffect(() => {
       const response = await axios.get(`${import.meta.env.VITE_APP_URL}/auth/watchlist`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      {/* const watchlist = response.data; // Array of movie IDs */}
+      const watchlist = response.data; // Array of movie IDs
       // Direct comparison here
       setIsInWatchlist(watchlist.includes(parseInt(id))); // Check if current movie ID is in the watchlist
+
 
     } catch (error) {
       console.log(error, 'error')
@@ -71,6 +60,30 @@ useEffect(() => {
 
   fetchData()
 }, [type, id]);
+
+useEffect(() => {
+  const fetchRating = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const response = await axios.get(
+        `${import.meta.env.VITE_APP_URL}/auth/ratings/${id}`, 
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      // Convert the rating to number if needed
+      setUserRating(Number(response.data) || 0);
+    } catch (err) {
+      if (err.response?.status !== 404) {
+        // Ignore 404 (no rating exists)
+        console.error("Error fetching rating:", err);
+      }
+      setUserRating(0);
+    }
+  };
+  fetchRating();
+}, [id]);
 
 // console.log(video, videos, 'videos')
 
@@ -103,6 +116,26 @@ const removeFromWatchlist = async (movieId) => {
   } catch (err) {
     console.error(err);
     alert(err.response?.data?.message || "Error removing movie from watchlist")
+  }
+};
+
+const handleRateMovie = async (movieId, rating) => {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Please login to rate movies");
+      return;
+    }
+    await axios.post(
+      `${import.meta.env.VITE_APP_URL}/auth/ratings`,
+      { movie_id: movieId, rating },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    setUserRating(rating);
+    alert("Rating submitted!");
+  } catch (err) {
+    console.error("Rating error:", err);
+    alert(err.response?.data?.message || "Error submitting rating");
   }
 };
 
@@ -212,6 +245,31 @@ const removeFromWatchlist = async (movieId) => {
                 </Button>
               )}
 
+              {/* User Rating */}
+              <Flex alignItems="center" gap={4} mt={4}>
+                <Text fontSize="sm" fontWeight="semibold">Rate this:</Text>
+                <Flex gap={1}>
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Tooltip key={star} label={`${star} star${star !== 1 ? 's' : ''}`}>
+                      <IconButton 
+                        aria-label={`Rate ${star} star`}
+                        icon={<StarIcon />}
+                        variant="ghost"
+                        color={star <= (hoverRating || userRating) ? "yellow.400" : "gray.600"}
+                        _hover={{ color: "yellow.300" }}
+                        onMouseEnter={() => setHoverRating(star)}
+                        onMouseLeave={() => setHoverRating(0)}
+                        onClick={() => handleRateMovie(id, star)}
+                        fontSize="24px"
+                      />
+                    </Tooltip>
+                  ))}
+                </Flex>
+                <Text fontSize="sm" color="gray.400">
+                  {userRating > 0 ? `You rated: ${userRating}/5` : "Click to rate"} 
+                </Text>
+              </Flex>
+
               </Flex>
               <Text 
                 color={"gray.400"} 
@@ -231,6 +289,7 @@ const removeFromWatchlist = async (movieId) => {
             </Box>
           </Flex>
         </Container>
+
       </Box>
 
       {/* Cast */}

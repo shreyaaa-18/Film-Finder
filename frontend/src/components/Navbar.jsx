@@ -79,6 +79,9 @@ const Navbar = () => {
                   <Link to="/watchlist">
                     <MenuItem>Watchlist</MenuItem>
                   </Link>
+                  <Link to="/recommendations">
+                    <MenuItem>Recommendations</MenuItem>
+                  </Link>
                   <MenuItem onClick={handleLogout}>Logout</MenuItem>
                 </MenuList>
               </Menu>

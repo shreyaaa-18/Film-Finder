@@ -2,6 +2,7 @@ import express from 'express'
 import {connectToDatabase} from '../lib/db.js'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
+import { getRecommendations } from '../controllers/recommendationController.js'
 
 const router = express.Router()
 
@@ -168,6 +169,9 @@ router.delete('/ratings/:movie_id', verifyToken, async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 });
+
+// Recommendation route
+router.get('/recommendations', verifyToken, getRecommendations);
 
 {/*
 // Home Route

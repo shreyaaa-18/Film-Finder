@@ -4,7 +4,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { ChakraProvider, ColorModeScript } from '@chakra-ui/react'
 import './index.css'
 import App from './App.jsx'
-import theme from './theme.js'
+import theme from '../theme.js'
 import Home from './pages/Home.jsx'
 import Movies from './pages/movies/Movies.jsx'
 import Shows from './pages/shows/Shows.jsx'
@@ -13,6 +13,7 @@ import DetailsPage from './pages/DetailsPage.jsx'
 import Login from './pages/registration/Login.jsx'
 import Register from './pages/registration/Register.jsx'
 import Watchlist from './pages/watchlist/Watchlist.jsx'
+import RecommendationsPage from './pages/RecommendationsPage.jsx'
 
 const router = createBrowserRouter([
   {
@@ -50,6 +51,10 @@ const router = createBrowserRouter([
       {
         path: "/watchlist",
         element: <Watchlist />
+      }, 
+      {
+        path: "/recommendations",
+        element: <RecommendationsPage />
       }
     ]
   }
