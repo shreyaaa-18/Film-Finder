@@ -10,12 +10,16 @@ module.exports = connection; */}
 //require("dotenv").config();
 import mysql from 'mysql2/promise'
 
+let connection;
+
 export const connectToDatabase = async () => {
-    const connection = await mysql.createConnection({
-        host: process.env.DB_HOST,
-        user: process.env.DB_USER,
-        password: process.env.DB_PASSWORD,
-        database: process.env.DB_NAME
-    })
+    if(!connection || reconnect) {
+        connection = await mysql.createConnection({
+            host: process.env.DB_HOST,
+            user: process.env.DB_USER,
+            password: process.env.DB_PASSWORD,
+            database: process.env.DB_NAME
+        })
+    }
     return connection
 } 
