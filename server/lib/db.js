@@ -13,7 +13,7 @@ import mysql from 'mysql2/promise'
 let connection;
 
 export const connectToDatabase = async () => {
-    if(!connection) {
+    if(!connection || !isDBConnected()) {
         connection = await mysql.createConnection({
             host: process.env.DB_HOST,
             user: process.env.DB_USER,
@@ -23,3 +23,15 @@ export const connectToDatabase = async () => {
     }
     return connection
 } 
+
+async function isDBConnected(){
+    try {
+        if(connection){
+            await connection.ping()
+            return true
+        }
+        return false
+    } catch (error) {
+        return false
+    }
+}

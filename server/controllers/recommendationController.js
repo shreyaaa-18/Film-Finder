@@ -1,5 +1,7 @@
 import axios from 'axios'
 import { connectToDatabase } from '../lib/db.js';
+import dotenv from 'dotenv'
+dotenv.config()
 
 
 const TMDB_API_KEY = process.env.TMDB_API_KEY;
