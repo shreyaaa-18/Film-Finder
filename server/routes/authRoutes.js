@@ -82,7 +82,7 @@ router.get('/verify', verifyToken, async (req, res) => {
             user: { id: rows[0].id, username: rows[0].username, email: rows[0].email},
         });
     } catch (err) {
-        return res.status(500).json({message: "Server error"});
+        return res.status(500).json({message: err.message});
     }
 })
 
@@ -154,7 +154,7 @@ router.get('/ratings/:movie_id', verifyToken, async (req, res) => {
         res.status(200).json(rows[0]?.rating || 0);
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: "Server error" });
+        res.status(500).json({ message: err.message});
     }
 });
 
