@@ -90,6 +90,10 @@ useEffect(() => {
 const addToWatchlist = async (movieId) => {
   try {
     const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Please login to add movies to watchlist");
+      return;
+    }
     await axios.post(
       `${import.meta.env.VITE_APP_URL}/auth/watchlist`,
       { movie_id: movieId },
